@@ -9,31 +9,22 @@ import cv2
 
 try:
     from function import Detector
-    from constant import CAM_FILE, SETTING_FILE, DEFAULT_SETTINGS
+    from constant import CAM_ID, SETTING_FILE, DEFAULT_SETTINGS
 except ImportError:
     from module.function import Detector
-    from module.constant import CAM_FILE, SETTING_FILE, DEFAULT_SETTINGS
+    from module.constant import CAM_ID, SETTING_FILE, DEFAULT_SETTINGS
 
 _DIR = os.path.dirname(os.path.realpath(__file__))
-_CAM_FILE = os.path.join(_DIR, CAM_FILE)
-
 
 def load_cam_id():
     """사용 가능한 카메라 정보를 가져온다.
 
     Returns:
-        int, str: 카메라 정보
+        int: 카메라 정보
     """
-    if os.path.exists(_CAM_FILE):
-        with open(_CAM_FILE, "r", encoding="utf-8") as f:
-            cam_id = f.read().replace("\n", "").strip()
-        try:
-            cam_id = int(cam_id)
-        except ValueError:
-            cam_id = str(cam_id)
-    else:
-        cam_id = cv2.CAP_ANY
-    return cam_id
+    if isinstance(CAM_ID, int):
+        return CAM_ID
+    return  cv2.CAP_ANY
 
 
 class SettingError(Exception):
@@ -153,8 +144,14 @@ class CustomSettingPage(Tk):
     def __init__(self):
         Tk.__init__(self)
         Tk.title(self, "Settings")
-        Tk.geometry(self, "950x920+200+30")
-        Tk.resizable(self, 0, 0)
+
+        screen_width = self.winfo_screenwidth()
+        screen_height = self.winfo_screenheight()
+        window_width = min(int(screen_width * 0.8), 950)
+        window_height = min(int(screen_height * 0.8), 920)
+
+        Tk.geometry(self, f"{window_width}x{window_height}+30+30")
+        # Tk.resizable(self, 0, 0)
         Tk.configure(self, bg="white")
 
         self._SETTING_FILE = os.path.join(_DIR, SETTING_FILE)
@@ -183,9 +180,9 @@ class CustomSettingPage(Tk):
             "orient": "horizontal",
             "background": "white",
             "highlightthickness": 0,
-            "font": Font(size=12, weight="bold"),
             "showvalue": False,
             "length": 900,
+            "font": Font(size=12, weight="bold"),
         }
         scale_pack = {"side": "top", "pady": 13}
         Scale(

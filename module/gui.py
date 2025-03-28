@@ -23,7 +23,6 @@ class App(Tk):
 
     def __init__(self, function):
         Tk.__init__(self)
-        # Tk.title(self, "SideBar")
         Tk.geometry(self, "140x410-50+50")
         Tk.resizable(self, 0, 0)
         Tk.configure(self, bg="white")
@@ -82,7 +81,7 @@ class App(Tk):
             command=lambda: self._set_btn_command("scroll-down"),
             **btn_style,
         )
-
+        # Keep reference to prevent garbage collection
         self.__btn_show.image = self.__eye
         self.__btn_hide.image = self.__eye_slash
         self.__btn_destroy.image = self.__x_square
@@ -103,6 +102,8 @@ class App(Tk):
 
     def _img(self, *paths):
         path = os.path.join(_DIR, "src", "gui", *paths)
+        if not os.path.exists(path):
+            raise FileNotFoundError(f"Image file not found: {path}")
         return ImageTk.PhotoImage(Image.open(path))
 
     def _repeat_process(self):

@@ -1,10 +1,10 @@
-import os.path
+import os
+import platform
 from time import time
 
 import cv2
 import mediapipe as mp
 import numpy as np
-from scipy.spatial import distance
 import pyautogui
 
 try:
@@ -245,11 +245,11 @@ class Detector(object):
 
     def _get_x_dist(self, landmark_ids):
         landmarks = [self._rescale_x(self.__landmarks[id].x) for id in landmark_ids]
-        return distance.euclidean(*landmarks)
+        return abs(landmarks[0] - landmarks[1])
 
     def _get_y_dist(self, landmark_ids):
         landmarks = [self._rescale_y(self.__landmarks[id].y) for id in landmark_ids]
-        return distance.euclidean(*landmarks)
+        return abs(landmarks[0] - landmarks[1])
 
 
 class Controller(object):
@@ -318,11 +318,17 @@ class Controller(object):
 
     @_with_focus
     def _zoom_in(self):
-        pyautogui.hotkey("ctrl", "+")
+        if platform.system() == "Darwin":  # macOS
+            pyautogui.hotkey("command", "+")
+        else:
+            pyautogui.hotkey("ctrl", "+")
 
     @_with_focus
     def _zoom_out(self):
-        pyautogui.hotkey("ctrl", "-")
+        if platform.system() == "Darwin":  # macOS
+            pyautogui.hotkey("command", "-")
+        else:
+            pyautogui.hotkey("ctrl", "-")
 
     @_with_focus
     def _scroll_up(self):
