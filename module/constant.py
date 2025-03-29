@@ -1,3 +1,11 @@
 SETTING_FILE = "settings.npy"
 DEFAULT_SETTINGS = [8, 0.2, 10, -12, -5, 12, 15, 600]
+# Blink_Frame_Threshold = 8
+# Eye_Aspect_Ratio_Threshold = 0.2
+# Looking_Up_Threshold = 10
+# Looking_Left_Threshold = -12
+# Looking_Down_Threshold = -5
+# Looking_Right_Threshold = 12
+# Cursor_Sensitivity = 15
+# Scroll_Sensitivity = 600
 CAM_ID = None

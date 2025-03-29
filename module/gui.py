@@ -1,10 +1,15 @@
 import os
-from tkinter import *
+import platform
+from tkinter import Tk
 from PIL import ImageTk, Image
 
 import cv2
 import pyautogui
 
+if platform.system() == "Darwin":
+    from tkmacosx import Button
+else:
+    from tkinter import Button
 
 _DIR = os.path.dirname(os.path.realpath(__file__))
 pyautogui.FAILSAFE = False
@@ -23,7 +28,7 @@ class App(Tk):
 
     def __init__(self, function):
         Tk.__init__(self)
-        Tk.geometry(self, "140x410-50+50")
+        #Tk.geometry(self, "140x410-50+50")
         Tk.resizable(self, 0, 0)
         Tk.configure(self, bg="white")
         self._allow_showing_frame = True
@@ -38,7 +43,7 @@ class App(Tk):
         self.__zoom_out = self._img("zoom-out.png")
         self.__arrow_up = self._img("arrow-up.png")
         self.__arrow_down = self._img("arrow-down.png")
-        btn_style = {"bg": "white", "borderwidth": 1, "relief": "flat"}
+        btn_style = {"bg": "white", "fg": "black", "borderless": 1, "relief": "flat"}
         self.__btn_show = Button(
             self,
             image=self.__eye,
@@ -90,14 +95,7 @@ class App(Tk):
         self.__btn_scrollup.image = self.__arrow_up
         self.__btn_scrolldown.image = self.__arrow_down
 
-        self.__btn_hide.grid(row=0, column=0, padx=8, pady=8)
-        self.__btn_destroy.grid(row=0, column=1, padx=8, pady=8)
-        self.__btn_zoomin.grid(row=1, column=0, columnspan=2, padx=16, pady=16)
-        self.__btn_zoomout.grid(row=2, column=0, columnspan=2, padx=16, pady=16)
-        self.__btn_scrollup.grid(row=3, column=0, columnspan=2, padx=16, pady=16)
-        self.__btn_scrolldown.grid(row=4, column=0, columnspan=2, padx=16, pady=16)
-        # self.__btn_show.grid(padx=8, pady=8)
-
+        self._show()
         self.after(1, self._repeat_process)
 
     def _img(self, *paths):
@@ -128,6 +126,7 @@ class App(Tk):
         Tk.geometry(self, "140x80-50+50")
 
     def _show(self):
+        Tk.geometry(self, "140x410-50+50")
         self.__btn_show.grid_forget()
         self.__btn_hide.grid(row=0, column=0, padx=8, pady=8)
         self.__btn_destroy.grid(row=0, column=1, padx=8, pady=8)
@@ -137,7 +136,6 @@ class App(Tk):
         self.__btn_scrolldown.grid(row=4, column=0, columnspan=2, padx=16, pady=16)
         self._allow_showing_frame = True
         self._allow_detecting_face = True
-        Tk.geometry(self, "140x410-50+50")
 
     def _destroy(self):
         self.destroy()

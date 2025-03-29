@@ -1,2 +1,6 @@
+# Local
 __pycache__
 test*
+
+# User specific settings
+/module/settings.npy

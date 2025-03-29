@@ -2,5 +2,7 @@
 
 from module.settings import CustomSettingPage
 
-setting = CustomSettingPage()
-setting.mainloop()
+setting_page = CustomSettingPage()
+setting_page.lift()
+setting_page.focus_force()
+setting_page.mainloop()

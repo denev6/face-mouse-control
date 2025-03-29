@@ -1,6 +1,5 @@
-import os.path
-from tkinter import *
-from tkinter import messagebox
+import os
+from tkinter import Tk, Toplevel, Scale, IntVar, Button, Label, messagebox
 from tkinter.font import Font
 from PIL import ImageTk, Image
 
@@ -150,22 +149,12 @@ class CustomSettingPage(Tk):
         window_width = min(int(screen_width * 0.8), 950)
         window_height = min(int(screen_height * 0.8), 920)
 
-        Tk.geometry(self, f"{window_width}x{window_height}+30+30")
+        Tk.geometry(self, f"{window_width}x{window_height}+60+30")
         # Tk.resizable(self, 0, 0)
         Tk.configure(self, bg="white")
 
         self._SETTING_FILE = os.path.join(_DIR, SETTING_FILE)
         self._DEFAULT = DEFAULT_SETTINGS
-        """
-        Blink_Frame_Threshold = 8
-        Eye_Aspect_Ratio_Threshold = 0.2
-        Looking_Up_Threshold = 10
-        Looking_Left_Threshold = -12
-        Looking_Down_Threshold = -5
-        Looking_Right_Threshold = 12
-        Cursor_Sensitivity = 15
-        Scroll_Sensitivity = 600
-        """
 
         settings = self._get_current_setting()
         self.__blink = IntVar(value=int(settings[0]))
@@ -179,6 +168,7 @@ class CustomSettingPage(Tk):
         scale_style = {
             "orient": "horizontal",
             "background": "white",
+            "foreground": "black",
             "highlightthickness": 0,
             "showvalue": False,
             "length": 900,
