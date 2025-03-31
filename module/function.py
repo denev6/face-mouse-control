@@ -264,10 +264,6 @@ class Controller(object):
     """
 
     def __init__(self):
-        self._dist = int(CURSOR_SENSITIVITY)
-        self._scroll_height = SCROLL_SENSITIVITY
-        if platform.system() == "Darwin":
-            self._scroll_height = int(SCROLL_SENSITIVITY / 10)
         self.__cursor_ = (
             self._cursor_up,
             self._cursor_down,
@@ -280,6 +276,14 @@ class Controller(object):
             "scroll-up": self._scroll_up,
             "scroll-down": self._scroll_down,
         }
+        self._dist = int(CURSOR_SENSITIVITY)
+        self._scroll_height = int(SCROLL_SENSITIVITY)
+        self._ctrl_key = "ctrl"
+
+        if platform.system() == "Darwin":  # for MacOS
+            self._scroll_height = int(SCROLL_SENSITIVITY / 50)
+            self._ctrl_key = "command"
+
         self.__command = None
         self.__command_counter = 0
 
@@ -311,26 +315,19 @@ class Controller(object):
         pyautogui.click()
 
     def _with_focus(function):
-        def wrapper(self):
+        def focus(self):
             pyautogui.doubleClick()
             function(self)
-            return None
 
-        return wrapper
+        return focus
 
     @_with_focus
     def _zoom_in(self):
-        if platform.system() == "Darwin":  # macOS
-            pyautogui.hotkey("command", "+")
-        else:
-            pyautogui.hotkey("ctrl", "+")
+        pyautogui.hotkey(self._ctrl_key, "+")
 
     @_with_focus
     def _zoom_out(self):
-        if platform.system() == "Darwin":  # macOS
-            pyautogui.hotkey("command", "-")
-        else:
-            pyautogui.hotkey("ctrl", "-")
+        pyautogui.hotkey(self._ctrl_key, "-")
 
     @_with_focus
     def _scroll_up(self):
@@ -379,6 +376,7 @@ class Process(object):
         self.__controller = Controller()
         self.__detector = None
         self.__prev_time = 0
+        self.__prev_allow_showing_frame = False
         self.__is_cv_inited = False
 
     def run(self, command, allow_showing_frame, allow_detecting_direction):
@@ -423,12 +421,14 @@ class Process(object):
         if allow_showing_frame:
             cv2.imshow("Frame", frame)
             cv2.setWindowProperty("Frame", cv2.WND_PROP_TOPMOST, 1)
-            if not self.__is_cv_inited:
+            if not self.__prev_allow_showing_frame or not self.__is_cv_inited:
+                # (Handling transition from pause) or (Initial position)
                 self._move_frame_window()
                 self.__is_cv_inited = True
+        self.__prev_allow_showing_frame = allow_showing_frame
 
     def _move_frame_window(self):
         full_w, full_h = pyautogui.size()
-        x = full_w - self.__detector._w - 100
-        y = full_h - self.__detector._h - 100
+        x = full_w - self.__detector._w - 10
+        y = full_h - self.__detector._h - 10
         cv2.moveWindow("Frame", x, y)

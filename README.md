@@ -1,8 +1,13 @@
 # Contactless Computer Interface based on Face Recognition and Eye-blink Detection
 
-Python 3.10+ is required. We recommend using Python 3.12 on Windows for the most stable experience.
+We propose a novel contactless input method to enhance web accessibility for people with disabilities. Our system uses **real-time face tracking** and **eye blink detection** to control mouse movements through facial gestures, eliminating the need for traditional input devices. The system achieves high accuracy on basic laptops without requiring GPUs or specialized equipment.
+
+## Installation and Usage
+
+Python 3.10+ is required. **Python 3.12** provides the most stable experience on Windows, with macOS also supported.
 
 ```sh
+git clone https://github.com/denev6/face-mouse-control.git
 pip install -r requirements.txt
 python main.py
 ```
@@ -12,6 +17,14 @@ You can customize settings using the GUI provided by `settings.py`.
 ```sh
 python settings.py
 ```
+
+## User Manual
+
+1. Set up the camera at eye level.
+2. Move your head to move the cursor.
+3. Click by closing your eyes briefly.
+4. To zoom or scroll, click the button on the side and move the cursor over the window you want.
+5. Use the pause button to keep the cursor still, useful when watching videos.
 
 ## Paper
 
@@ -25,7 +38,7 @@ python settings.py
   publisher = {한국정보통신학회},
   volume    = {26},
   number    = {9},
-  pages     = {1279-1292}
+  pages     = {1279-1292},
   year      = 2022,
   month     = 09
 }

@@ -1,4 +1,5 @@
 import os
+import platform
 from tkinter import Tk, Button
 from PIL import ImageTk, Image
 
@@ -27,6 +28,7 @@ class App(Tk):
         self._allow_showing_frame = True
         self._allow_detecting_face = True
         self._btn_command = None
+        self.__window_width = None  # Keep consistent width for paused state.
         self.__process = function
 
         self.__eye = self._img("eye.png")
@@ -142,13 +144,20 @@ class App(Tk):
         self._allow_detecting_face = True
 
     def _resize_window_to_fit_content(self):
-        self.update_idletasks()  # Ensure layout is updated
-        width = self.winfo_reqwidth()
-        height = self.winfo_reqheight()
+        self.update_idletasks()
 
-        screen_width = self.winfo_screenwidth()
-        x_offset = screen_width - width - 10
-        self.geometry(f"{width}x{height}+{x_offset}+10")
+        def place_window():
+            height = self.winfo_reqheight()
+            if self.__window_width is None:
+                self.__window_width = self.winfo_reqwidth()
+
+            screen_width = self.winfo_screenwidth()
+            x_offset = screen_width - self.__window_width - 10
+            self.geometry(f"{self.__window_width}x{height}+{x_offset}+10")
+
+        # Ensure the window is positioned correctly
+        # by placing it after the layout has been updated.
+        self.after_idle(place_window)
 
     def _destroy(self):
         self.destroy()

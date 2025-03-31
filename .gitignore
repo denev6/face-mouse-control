@@ -1,5 +1,8 @@
 # Local
 __pycache__
+.vscode
+.idea
+*.ini
 test*
 
 # User specific settings
