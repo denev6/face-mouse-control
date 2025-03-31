@@ -15,6 +15,7 @@ except ImportError:
 
 _DIR = os.path.dirname(os.path.realpath(__file__))
 
+
 def load_cam_id():
     """사용 가능한 카메라 정보를 가져온다.
 
@@ -23,7 +24,7 @@ def load_cam_id():
     """
     if isinstance(CAM_ID, int):
         return CAM_ID
-    return  cv2.CAP_ANY
+    return cv2.CAP_ANY
 
 
 class SettingError(Exception):
@@ -143,13 +144,6 @@ class CustomSettingPage(Tk):
     def __init__(self):
         Tk.__init__(self)
         Tk.title(self, "Settings")
-
-        screen_width = self.winfo_screenwidth()
-        screen_height = self.winfo_screenheight()
-        window_width = min(int(screen_width * 0.8), 950)
-        window_height = min(int(screen_height * 0.8), 920)
-
-        Tk.geometry(self, f"{window_width}x{window_height}+60+30")
         # Tk.resizable(self, 0, 0)
         Tk.configure(self, bg="white")
 
@@ -244,7 +238,7 @@ class CustomSettingPage(Tk):
             label="Scroll Sensitivity: 값이 클수록 스크롤 시 화면이 많이 이동합니다.",
             variable=self.__scroll_sensitivity,
             tickinterval=1,
-            from_=4,
+            from_=2,
             to=10,
             **scale_style,
         ).pack(**scale_pack)
@@ -258,12 +252,20 @@ class CustomSettingPage(Tk):
             side="left", ipadx=12, ipady=10, padx=50, pady=13
         )
 
+        # Resize window to fit the contents
+        self.update_idletasks()
+        width = self.winfo_reqwidth()
+        height = self.winfo_reqheight()
+        self.geometry(f"{width+8}x{height+8}+60+30")
+
     def _set_customed_ear(self):
         CAM_ID = load_cam_id()
         setter = EARSetter()
         threshold = setter.execute(CAM_ID)
         self.__scale_ear.set(int(threshold * 100))
-        messagebox.showinfo("Settings", f"EAR 값이 {int(threshold * 100)}로 설정되었습니다.")
+        messagebox.showinfo(
+            "Settings", f"EAR 값이 {int(threshold * 100)}로 설정되었습니다."
+        )
 
     def _get_current_setting(self):
         if os.path.exists(self._SETTING_FILE):

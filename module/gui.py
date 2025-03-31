@@ -1,15 +1,9 @@
 import os
-import platform
-from tkinter import Tk
+from tkinter import Tk, Button
 from PIL import ImageTk, Image
 
 import cv2
 import pyautogui
-
-if platform.system() == "Darwin":
-    from tkmacosx import Button
-else:
-    from tkinter import Button
 
 _DIR = os.path.dirname(os.path.realpath(__file__))
 pyautogui.FAILSAFE = False
@@ -28,7 +22,6 @@ class App(Tk):
 
     def __init__(self, function):
         Tk.__init__(self)
-        #Tk.geometry(self, "140x410-50+50")
         Tk.resizable(self, 0, 0)
         Tk.configure(self, bg="white")
         self._allow_showing_frame = True
@@ -43,7 +36,7 @@ class App(Tk):
         self.__zoom_out = self._img("zoom-out.png")
         self.__arrow_up = self._img("arrow-up.png")
         self.__arrow_down = self._img("arrow-down.png")
-        btn_style = {"bg": "white", "fg": "black", "borderless": 1, "relief": "flat"}
+        btn_style = {"bg": "white", "fg": "black", "borderwidth": 1, "relief": "flat"}
         self.__btn_show = Button(
             self,
             image=self.__eye,
@@ -120,22 +113,42 @@ class App(Tk):
         self.__btn_scrollup.grid_forget()
         self.__btn_scrolldown.grid_forget()
         self.__btn_show.grid(padx=8, pady=8)
+        self._resize_window_to_fit_content()
+
         cv2.destroyAllWindows()
         self._allow_showing_frame = False
         self._allow_detecting_face = False
-        Tk.geometry(self, "140x80-50+50")
 
     def _show(self):
-        Tk.geometry(self, "140x410-50+50")
         self.__btn_show.grid_forget()
-        self.__btn_hide.grid(row=0, column=0, padx=8, pady=8)
-        self.__btn_destroy.grid(row=0, column=1, padx=8, pady=8)
-        self.__btn_zoomin.grid(row=1, column=0, columnspan=2, padx=16, pady=16)
-        self.__btn_zoomout.grid(row=2, column=0, columnspan=2, padx=16, pady=16)
-        self.__btn_scrollup.grid(row=3, column=0, columnspan=2, padx=16, pady=16)
-        self.__btn_scrolldown.grid(row=4, column=0, columnspan=2, padx=16, pady=16)
+        padding = 8
+        self.__btn_hide.grid(row=0, column=0, padx=int(padding // 2), pady=padding)
+        self.__btn_destroy.grid(row=0, column=1, padx=int(padding // 2), pady=padding)
+        self.__btn_zoomin.grid(
+            row=1, column=0, columnspan=2, padx=padding, pady=padding
+        )
+        self.__btn_zoomout.grid(
+            row=2, column=0, columnspan=2, padx=padding, pady=padding
+        )
+        self.__btn_scrollup.grid(
+            row=3, column=0, columnspan=2, padx=padding, pady=padding
+        )
+        self.__btn_scrolldown.grid(
+            row=4, column=0, columnspan=2, padx=padding, pady=padding
+        )
+        self._resize_window_to_fit_content()
+
         self._allow_showing_frame = True
         self._allow_detecting_face = True
+
+    def _resize_window_to_fit_content(self):
+        self.update_idletasks()  # Ensure layout is updated
+        width = self.winfo_reqwidth()
+        height = self.winfo_reqheight()
+
+        screen_width = self.winfo_screenwidth()
+        x_offset = screen_width - width - 10
+        self.geometry(f"{width}x{height}+{x_offset}+10")
 
     def _destroy(self):
         self.destroy()

@@ -265,7 +265,9 @@ class Controller(object):
 
     def __init__(self):
         self._dist = int(CURSOR_SENSITIVITY)
-        self._scroll_height = int(SCROLL_SENSITIVITY)
+        self._scroll_height = SCROLL_SENSITIVITY
+        if platform.system() == "Darwin":
+            self._scroll_height = int(SCROLL_SENSITIVITY / 10)
         self.__cursor_ = (
             self._cursor_up,
             self._cursor_down,
@@ -373,7 +375,7 @@ class Process(object):
 
     def __init__(self, capture):
         self._cap = capture
-        self._FPS = 60
+        self._max_frame_rate = 60
         self.__controller = Controller()
         self.__detector = None
         self.__prev_time = 0
@@ -387,45 +389,46 @@ class Process(object):
             allow_showing_frame (bool): 화면에 실시간 프레임을 보여줄 지 여부.
             allow_detecting_direction (bool): 얼굴 방향 계산 수행 여부.
         """
-        sucess, frame = self._cap.read()
+        success, frame = self._cap.read()
         current_time = time() - self.__prev_time
-        if sucess and (current_time > 1 / self._FPS):
-            self.__prev_time = time()
-            if self.__detector is None:
-                self.__detector = Detector(frame)
 
-            frame, rgb_frame = self.__detector.convert_frame(frame)
-            is_detected = self.__detector.detect_landmark(rgb_frame)
+        if not success or (current_time < 1 / self._max_frame_rate):
+            # Limit the frame rate to prevent overhead
+            # when it exceeds the maximum.
+            return
 
-            if command:
-                self.__controller.add_command(command)
+        self.__prev_time = time()
+        if self.__detector is None:
+            self.__detector = Detector(frame)
 
-            if is_detected:
+        frame, rgb_frame = self.__detector.convert_frame(frame)
+        is_detected = self.__detector.detect_landmark(rgb_frame)
 
-                if allow_detecting_direction:
-                    directions = self.__detector.get_face_direction()
-                    if directions:
-                        self.__controller.move_cursor_by_face(directions)
+        if command:
+            self.__controller.add_command(command)
 
-                is_blinked = self.__detector.update_blink_count()
-                if is_blinked:
-                    self.__controller.click()
+        if is_detected:
+            if allow_detecting_direction:
+                directions = self.__detector.get_face_direction()
+                if directions:
+                    self.__controller.move_cursor_by_face(directions)
 
-                if self.__controller.has_command():
-                    self.__controller.count_btn_command()
-            else:
-                pass
+            is_blinked = self.__detector.update_blink_count()
+            if is_blinked:
+                self.__controller.click()
 
-            if allow_showing_frame:
-                cv2.imshow("Frame", frame)
-                cv2.setWindowProperty("Frame", cv2.WND_PROP_TOPMOST, 1)
-                if not self.__is_cv_inited:
-                    full_w, full_h = pyautogui.size()
-                    x = full_w - self.__detector._w - 100
-                    y = full_h - self.__detector._h - 100
-                    cv2.moveWindow("Frame", x, y)
-                    self.__is_cv_inited = True
+            if self.__controller.has_command():
+                self.__controller.count_btn_command()
 
-        else:
-            # 일정 프레임을 넘어서 인식할 경우, 프레임을 제한합니다.
-            pass
+        if allow_showing_frame:
+            cv2.imshow("Frame", frame)
+            cv2.setWindowProperty("Frame", cv2.WND_PROP_TOPMOST, 1)
+            if not self.__is_cv_inited:
+                self._move_frame_window()
+                self.__is_cv_inited = True
+
+    def _move_frame_window(self):
+        full_w, full_h = pyautogui.size()
+        x = full_w - self.__detector._w - 100
+        y = full_h - self.__detector._h - 100
+        cv2.moveWindow("Frame", x, y)
