@@ -150,19 +150,19 @@ class Detector(object):
             - 2: 왼쪽 (Left)
             - 3: 오른쪽 (Right)
         """
-        x_angle, y_angle, z_angle = self._get_face_angles()
+        pitch, yaw, roll = self._get_face_angles()
         directions = []
-        if self._is_up(x_angle) and self._moved_vertically(x_angle):
+        if self._is_up(pitch) and self._moved_vertically(pitch):
             directions.append(0)
-        elif self._is_down(x_angle) and self._moved_vertically(x_angle):
+        elif self._is_down(pitch) and self._moved_vertically(pitch):
             directions.append(1)
-        if self._is_left(y_angle) and self._moved_horizontally(y_angle):
+        if self._is_left(yaw) and self._moved_horizontally(yaw):
             directions.append(2)
-        elif self._is_right(y_angle) and self._moved_horizontally(y_angle):
+        elif self._is_right(yaw) and self._moved_horizontally(yaw):
             directions.append(3)
 
-        self.__prev_x_angle = x_angle
-        self.__prev_y_angle = y_angle
+        self.__prev_x_angle = pitch
+        self.__prev_y_angle = yaw
 
         return directions
 
